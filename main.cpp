@@ -6,27 +6,36 @@
 // Window dimensions
 const GLint WIDTH = 800, HEIGHT = 600;
 
-GLuint VAO, VBO, shader;
+GLuint VAO, VBO, shader, uniformXMove;
+
+bool direction = true;
+float triOffSet = 0.0f;
+float triMaxOffSet = 0.7f;
+float triIncrement = 0.01f;
+
+
 
 // Vertex Shader
-static const char *vShader = "									\n\
-#version 330													\n\
-																\n\
-layout (location = 0) in vec3 pos;								\n\
-																\n\
-void main() {													\n\
-	gl_Position = vec4(0.4 * pos.x, 0.4 * pos.y, pos.z, 1.0);	\n\
+static const char *vShader = "											\n\
+#version 330															\n\
+																		\n\
+layout (location = 0) in vec3 pos;										\n\
+																		\n\
+uniform float xMove;													\n\
+																		\n\
+void main() {															\n\
+	gl_Position = vec4(0.4 * pos.x + xMove, 0.4 * pos.y, pos.z, 1.0);	\n\
 }";
 
 // Fragment Shader
-static const char *fShader = "									\n\
-#version 330													\n\
-																\n\
-out vec4 colour;												\n\
-																\n\
-void main() {													\n\
-	colour = vec4(1.0, 0.0, 0.0, 1.0);							\n\
-}";
+static const char *fShader = "											\n\
+#version 330															\n\
+																		\n\
+out vec4 colour;														\n\
+																		\n\
+void main() {															\n\
+	colour = vec4(1.0, 0.0, 0.0, 1.0);									\n\
+}";	
 
 void createTriangle() {
 	GLfloat vertices[] = {
@@ -105,7 +114,7 @@ void compileShaders() {
 		return;
 	}
 
-
+	uniformXMove = glGetUniformLocation(shader, "xMove");
 
 }
 
@@ -161,11 +170,26 @@ int main() {
 		// Get and handle user input events
 		glfwPollEvents();
 
+		if (direction) {
+			triOffSet += triIncrement;
+		}
+		else {
+			triOffSet -= triIncrement;
+		}
+
+		if (abs(triOffSet) >= triMaxOffSet) {
+			direction = !direction;
+		}
+
+
+
 		// Clear window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shader);
+
+		glUniform1f(uniformXMove, triOffSet);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
