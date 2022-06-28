@@ -18,19 +18,38 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw,
 	update();
 }
 
-void Camera::keyControl(bool* keys) {
+void Camera::keyControl(bool* keys, GLfloat deltaTime) {
+	GLfloat velocity = moveSpeed_ * deltaTime;
+
 	if (keys[GLFW_KEY_W]) {
-		position_ += front_ * moveSpeed_;
+		position_ += front_ * velocity;
 	}
 	if (keys[GLFW_KEY_S]) {
-		position_ -= front_ * moveSpeed_;
+		position_ -= front_ * velocity;
 	}
 	if (keys[GLFW_KEY_A]) {
-		position_ -= right_ * moveSpeed_;
+		position_ -= right_ * velocity;
 	}
 	if (keys[GLFW_KEY_D]) {
-		position_ += right_ * moveSpeed_;
+		position_ += right_ * velocity;
 	} 
+}
+
+void Camera::mouseControl(GLfloat xChange, GLfloat yChange) {
+	xChange *= turnSpeed_;
+	yChange *= turnSpeed_;
+
+	yaw_ += xChange;
+	pitch_ += yChange;
+
+	if (pitch_ > 89.0f) {
+		pitch_ = 89.0f;
+	}
+	else if (pitch_ < -89.0f) {
+		pitch_ = -89.0f;
+	}
+
+	update();
 }
 
 glm::mat4 Camera::calculateViewMatrix() {
