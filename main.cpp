@@ -13,6 +13,7 @@
 #include "window.h"
 #include "camera.h"
 #include "texture.h"
+#include "light.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -23,6 +24,8 @@ Camera camera;
 
 Texture yellowStoneWallTexture;
 Texture greyStoneWallTexture;
+
+Light mainLight;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -78,9 +81,13 @@ int main() {
 	greyStoneWallTexture = Texture("textures/wall.png");
 	greyStoneWallTexture.loadTexture();
 
+	mainLight = Light(1.0f, 0.0f, 0.0f, 0.5f);
+
 	GLuint uniformProjection = 0;
 	GLuint uniformModel = 0;
 	GLuint uniformView = 0;
+	GLuint uniformAmbientIntensity = 0;
+	GLuint uniformAmbientColour = 0;
 	glm::mat4 projection = glm::perspective(45.0f, mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	// loop until window closed
@@ -103,8 +110,13 @@ int main() {
 		uniformModel = shaderList[0].getModelLocation();
 		uniformProjection = shaderList[0].getProjectionLocation();
 		uniformView = shaderList[0].getViewLocation();
+		uniformAmbientColour = shaderList[0].getAmbientColourLocation();
+		uniformAmbientIntensity = shaderList[0].getAmbientIntensityLocation();
+
+		mainLight.useLight(uniformAmbientIntensity, uniformAmbientColour);
 
 		glm::mat4 model(1.0f);
+
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 
