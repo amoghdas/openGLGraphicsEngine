@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "light.h"
+#include "material.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -24,6 +25,9 @@ Camera camera;
 
 Texture yellowStoneWallTexture;
 Texture greyStoneWallTexture;
+
+Material shinyMaterial;
+Material dullMaterial;
 
 Light mainLight;
 
@@ -87,9 +91,9 @@ void createObjects() {
 
 	GLfloat vertices[] = {
 	//  x      y      z			u	  v			nx	  ny	nz
-		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, -0.6f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, -0.6f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
 	};
 
@@ -111,7 +115,7 @@ void createShaders() {
 }
 
 int main() {
-	mainWindow = Window(800, 600);
+	mainWindow = Window(1366, 768);
 	mainWindow.initialize();
 
 	createObjects();
@@ -124,12 +128,18 @@ int main() {
 	greyStoneWallTexture = Texture("textures/wall.png");
 	greyStoneWallTexture.loadTexture();
 
-	mainLight = Light(1.0f, 0.0f, 0.0f, 0.5f, 
-					  2.0f, -1.0f, -2.0f, 1.0f);
+	shinyMaterial = Material(1.0f, 32);
+	dullMaterial = Material(0.3f, 4);
+
+	mainLight = Light(1.0f, 1.0f, 1.0f, 0.5f, 
+					  2.0f, -1.0f, -2.0f, 0.3f);
 
 	GLuint uniformProjection = 0;
 	GLuint uniformModel = 0;
 	GLuint uniformView = 0;
+	GLuint uniformEyePosition = 0;
+	GLuint uniformSpecularIntensity = 0;
+	GLuint uniformShininess = 0;
 	GLuint uniformAmbientIntensity = 0;
 	GLuint uniformAmbientColour = 0;
 	GLuint uniformDirection = 0;
@@ -161,26 +171,34 @@ int main() {
 		uniformAmbientIntensity = shaderList[0].getAmbientIntensityLocation();
 		uniformDirection = shaderList[0].getDirectionLocation();
 		uniformDiffuseIntensity = shaderList[0].getDiffuseIntensityLocation();
+		uniformEyePosition = shaderList[0].getEyePositionLocation();
+		uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
+		uniformShininess = shaderList[0].getShininessLocation();
 
 		mainLight.useLight(uniformAmbientIntensity, uniformAmbientColour, 
-			uniformDiffuseIntensity, uniformDirection);
+			uniformDiffuseIntensity, uniformDirection);                                                   
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y,
+			camera.getCameraPosition().z);
 
 		glm::mat4 model(1.0f);
 
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		yellowStoneWallTexture.useTexture();
+		shinyMaterial.useMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[0]->renderMesh();
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 1.0f, -2.5f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 4.0f, -2.5f));
+		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		greyStoneWallTexture.useTexture();
+		dullMaterial.useMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[1]->renderMesh();
 
 
