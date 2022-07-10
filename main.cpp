@@ -13,7 +13,7 @@
 #include "window.h"
 #include "camera.h"
 #include "texture.h"
-#include "light.h"
+#include "directionalLight.h"
 #include "material.h"
 
 const float toRadians = 3.14159265f / 180.0f;
@@ -29,7 +29,7 @@ Texture greyStoneWallTexture;
 Material shinyMaterial;
 Material dullMaterial;
 
-Light mainLight;
+DirectionalLight mainLight;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -91,7 +91,7 @@ void createObjects() {
 
 	GLfloat vertices[] = {
 	//  x      y      z			u	  v			nx	  ny	nz
-		-1.0f, -1.0f, -0.6f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, -0.6f,	0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, -0.6f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
@@ -131,8 +131,9 @@ int main() {
 	shinyMaterial = Material(1.0f, 32);
 	dullMaterial = Material(0.3f, 4);
 
-	mainLight = Light(1.0f, 1.0f, 1.0f, 0.5f, 
-					  2.0f, -1.0f, -2.0f, 0.3f);
+	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
+								0.5f, 0.3f,
+								0.0f, 0.0f, -1.0f);
 
 	GLuint uniformProjection = 0;
 	GLuint uniformModel = 0;
