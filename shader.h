@@ -50,6 +50,19 @@ private:
 		GLuint uniformDirection_;
 	} uniformDirectionalLight_;
 
+	GLuint uniformPointLightCount;
+
+	struct {
+		GLuint uniformColour_;
+		GLuint uniformAmbientIntensity_;
+		GLuint uniformDiffuseIntensity_;
+
+		GLuint uniformPosition_;
+		GLuint uniformConstant_;
+		GLuint uniformLinear_;
+		GLuint uniformExponent_;
+	} uniformPointLight_[MAX_POINT_LIGHTS];
+
 	void compileShader(const char* vertexCode, const char* fragmentCode);
 	void addShader(GLuint theProgram, const char* shaderCode, GLenum shaderType);
 };

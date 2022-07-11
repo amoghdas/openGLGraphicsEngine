@@ -74,6 +74,9 @@
     <ClInclude Include="pointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="commonValues.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag">
