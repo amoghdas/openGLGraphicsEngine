@@ -82,7 +82,7 @@ void Shader::compileShader(const char *vertexCode, const char *fragmentCode) {
 	uniformShininess_ = glGetUniformLocation(shaderID_, "material.shininess");
 	uniformEyePosition_ = glGetUniformLocation(shaderID_, "eyePosition");
 
-	uniformPointLightCount = glGetUniformLocation(shaderID_, "pointLightCount_");
+	uniformPointLightCount_ = glGetUniformLocation(shaderID_, "pointLightCount");
 
 	for (size_t i = 0; i < MAX_POINT_LIGHTS; i++) {
 		char locBuff[100] = { '\0' };
@@ -153,6 +153,22 @@ GLuint Shader::getEyePositionLocation() {
 void Shader::setDirectionalLight(DirectionalLight* dLight) {
 	dLight->useLight(uniformDirectionalLight_.uniformAmbientIntensity_, uniformDirectionalLight_.uniformColour_,
 		uniformDirectionalLight_.uniformDiffuseIntensity_, uniformDirectionalLight_.uniformDirection_);
+}
+
+void Shader::setPointLights(PointLight* pLight, unsigned int lightCount) {
+	if (lightCount > MAX_POINT_LIGHTS) lightCount = MAX_POINT_LIGHTS;
+
+	glUniform1i(uniformPointLightCount_, lightCount);
+
+	for (size_t i = 0; i < lightCount; i++) {
+		pLight[i].useLight(uniformPointLight_[i].uniformAmbientIntensity_,
+							uniformPointLight_[i].uniformColour_,
+							uniformPointLight_[i].uniformDiffuseIntensity_,
+							uniformPointLight_[i].uniformPosition_,
+							uniformPointLight_[i].uniformConstant_,
+							uniformPointLight_[i].uniformLinear_,
+							uniformPointLight_[i].uniformExponent_);
+	}
 }
 
 void Shader::useShader() {

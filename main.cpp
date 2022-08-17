@@ -7,6 +7,9 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+
+#include "commonValues.h"
+
 #include <vector>
 #include "mesh.h"
 #include "shader.h"
@@ -14,6 +17,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "directionalLight.h"
+#include "pointLight.h"
 #include "material.h"
 
 const float toRadians = 3.14159265f / 180.0f;
@@ -30,6 +34,7 @@ Material shinyMaterial;
 Material dullMaterial;
 
 DirectionalLight mainLight;
+PointLight pointLights[MAX_POINT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -132,8 +137,15 @@ int main() {
 	dullMaterial = Material(0.3f, 4);
 
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
-								0.5f, 0.3f,
+								0.4f, 0.3f,
 								0.0f, 0.0f, -1.0f);
+
+	unsigned int pointLightCount = 0;
+	pointLights[0] = PointLight(0.0f, 1.0f, 0.0f,
+								0.1f, 1.0f,
+								-4.0f, 0.0f, 0.0f,
+								0.3f, 0.2f, 0.1f);
+	pointLightCount++;
 
 	GLuint uniformProjection = 0;
 	GLuint uniformModel = 0;
@@ -168,7 +180,8 @@ int main() {
 		uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
 		uniformShininess = shaderList[0].getShininessLocation();
 
-		shaderList[0].setDirectionalLight(&mainLight);                                         
+		shaderList[0].setDirectionalLight(&mainLight); 
+		shaderList[0].setPointLights(pointLights, pointLightCount);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
